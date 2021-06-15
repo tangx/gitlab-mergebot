@@ -1,0 +1,11 @@
+minReviewers: 2
+assignees:
+  - zhugeliang 
+reviewers:
+  - zhangsan
+  - lisi
+  - wangwu
+squash: true
+ShouldRemoveSourceBranch: true
+mergeWhenPipelineSucceeds: true
+
