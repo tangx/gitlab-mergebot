@@ -12,17 +12,19 @@ WORKSPACE ?= ./cmd/$(APP)
 
 up:
 	cd $(WORKSPACE) && go run .
+
 clean:
 	rm -rf out
 
 tidy:
+	go mod tidy
 
 build:
-	$(MAKE) build.$(APP) GOOS=darwin GOARCH=amd64
-	$(MAKE) build.$(APP) GOOS=linux GOARCH=amd64
-	$(MAKE) build.$(APP) GOOS=linux GOARCH=arm64
+	make build.$(APP) GOOS=darwin GOARCH=amd64
+	make build.$(APP) GOOS=linux GOARCH=amd64
+	make build.$(APP) GOOS=linux GOARCH=arm64
 
-build.$(APP):
+build.$(APP): tidy
 	@echo "Building $(APP) for $(GOOS)/$(GOARCH)"
 	cd $(WORKSPACE) && $(GOBUILD) -o ../../out/$(APP)-$(GOOS)-$(GOARCH)
 

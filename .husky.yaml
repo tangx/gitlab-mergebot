@@ -1,0 +1,11 @@
+
+hooks:
+  pre-commit:
+    - golangci-lint run
+    - husky lint-staged
+
+lint-staged:
+  "*.go":
+    - goimports -l -w
+    - gofmt -l -w
+

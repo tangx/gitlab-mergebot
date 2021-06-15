@@ -30,10 +30,7 @@ func (l *Launcher) WithFuncs(fns ...func()) {
 }
 
 func (l *Launcher) Launch() {
-	for {
-		select {
-		case fn := <-l.fnchan:
-			go l.worker(fn)
-		}
+	for fn := range l.fnchan {
+		go l.worker(fn)
 	}
 }
