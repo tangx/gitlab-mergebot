@@ -28,15 +28,21 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
-    - name: Show Environment Variables
-      run: env
 
     - name: Build Binary
       run: make build
     
-    - uses: "marvinpinto/action-automatic-releases@latest"
+    - uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        tag_name: ${{ steps.build.outputs.version }}
+        release_name: Release ${{ steps.build.outputs.version }}
+        draft: true
         prerelease: false
-        files: |
-          bin/*
+    - uses: csexton/release-asset-action@v2
+      with:
+        pattern: out/*
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        release-url: ${{ steps.create_release.outputs.upload_url }}
