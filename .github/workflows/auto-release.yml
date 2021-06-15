@@ -5,44 +5,31 @@ on:
     tags: 
       - "v*"
 
-jobs:
 
+jobs:
   build:
-    name: Build Binary
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.14.0'
+      - id: build
+        run: |
+          make build
+          echo "::set-output name=version::v$(cat .version)"
+      - uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.build.outputs.version }}
+          release_name: Release ${{ steps.build.outputs.version }}
+          draft: true
+          prerelease: false
+      - uses: csexton/release-asset-action@v2
+        with:
+          pattern: cmd/husky/out/*
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-url: ${{ steps.create_release.outputs.upload_url }}
 
-    - name: Set up Go 1.16
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.16
-      id: go
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
-
-    - name: Build Binary
-      run: make build
-    
-    - uses: actions/create-release@v1
-      id: create_release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.build.outputs.version }}
-        release_name: Release ${{ steps.build.outputs.version }}
-        draft: true
-        prerelease: false
-    - uses: csexton/release-asset-action@v2
-      with:
-        pattern: out/*
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        release-url: ${{ steps.create_release.outputs.upload_url }}
